@@ -1,29 +1,20 @@
-import React, {useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import useUserSearch from './components/UserSearch.js';
 import './App.css';
 
 function App() {
-  const [users, setUsers] = useState([]);
+  const { users, searchUsers } = useUserSearch();
   const [searchTerm, setSearchTerm] = useState('');
 
-  const getUserData = url => fetch(url).then(response => response.json());
+  const handleInputChange = event => {
+    const searchTerm = event.target.value;
+    setSearchTerm(searchTerm);
+    searchUsers(searchTerm);
+  }
 
-  useEffect(() => {
-    const searchUrl = 'https://api.github.com/';
-    let params = 'users';
-    if (searchTerm.length > 0) {
-      params = `search/users?q=${searchTerm}&per_page=5`;
-      const getUserDataTimeout = setTimeout(() => {
-        getUserData(searchUrl + params).then(data => setUsers(data.items));
-      }, 250);
-      return () => clearTimeout(getUserDataTimeout);
-    } else {
-      getUserData(searchUrl + params).then(data => setUsers(data));
-    }
-  }, [searchTerm]);
-  
-  const handleInputChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
+  if (users.length === 0) {
+    searchUsers(searchTerm);
+  }
   
   return (
     <div className="container mx-auto py-8">
