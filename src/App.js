@@ -1,17 +1,19 @@
-import React, {useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import './App.css';
 
 function App() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const getUserData = url => fetch(url).then(response => response.json());
+  const getUserData = useCallback(url => {
+    return fetch(url).then(response => response.json());
+  }, []);
 
   useEffect(() => {
     const searchUrl = 'https://api.github.com/';
     let params = 'users';
     if (searchTerm.length > 0) {
-      params = `search/users?q=${searchTerm}&per_page=5`;
+      params = `search/users?q=${searchTerm}&per_page=20`;
       const getUserDataTimeout = setTimeout(() => {
         getUserData(searchUrl + params).then(data => setUsers(data.items));
       }, 250);
@@ -19,7 +21,7 @@ function App() {
     } else {
       getUserData(searchUrl + params).then(data => setUsers(data));
     }
-  }, [searchTerm]);
+  }, [searchTerm, getUserData]);
   
   const handleInputChange = (event) => {
     setSearchTerm(event.target.value);
